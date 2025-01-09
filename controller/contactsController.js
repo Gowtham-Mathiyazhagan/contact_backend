@@ -5,7 +5,7 @@ const Contact = require("../models/contactModel");
 // all contacts
 const getAllContacts = asyncHandler(async (req, res) => {
   const contacts = await Contact.find();
-  if (contacts) {
+  if (!contacts) {
     res.status(500);
     throw new Error("Server not found");
   }
