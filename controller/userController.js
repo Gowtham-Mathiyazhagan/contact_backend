@@ -2,6 +2,8 @@ const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
+
+// user register
 const registerUser = asyncHandler(async (req, res) => {
   const { userName, email, password } = req.body;
 
@@ -34,6 +36,7 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
+// login user
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   console.log(email, password);
@@ -54,7 +57,7 @@ const loginUser = asyncHandler(async (req, res) => {
         },
       },
       process.env.ACCESS_TOKEN_SECERT,
-      { expiresIn: "1m" }
+      { expiresIn: "2m" }
     );
     res.status(200).json({ accessToken });
   } else {
@@ -64,7 +67,7 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 const userStatus = asyncHandler(async (req, res) => {
-  res.status(200).json({ msg: "User Status" });
+  res.status(200).json(req.user);
 });
 
 module.exports = { registerUser, loginUser, userStatus };
