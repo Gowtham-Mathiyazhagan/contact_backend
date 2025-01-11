@@ -4,7 +4,9 @@ const Contact = require("../models/contactModel");
 
 // all contacts
 const getAllContacts = asyncHandler(async (req, res) => {
-  const contacts = await Contact.find();
+  const contacts = await Contact.find({ user_id: req.user.id });
+  console.log(req.user.id);
+
   if (!contacts) {
     res.status(500);
     throw new Error("Server not found");
@@ -15,13 +17,14 @@ const getAllContacts = asyncHandler(async (req, res) => {
 //create new contact
 const createNewContact = asyncHandler(async (req, res) => {
   const { name, email, phone } = req.body;
-  if (!name || !email || !phone) {
-    console.log(name);
 
+  if (!name || !email || !phone) {
     res.status(400);
     throw new Error("Give reqiuired values");
   }
+
   const contacts = await Contact.create({
+    user_id: req.user.id,
     name,
     email,
     phone,
@@ -43,26 +46,43 @@ const getContact = asyncHandler(async (req, res) => {
 
 //update contact
 const updateContact = asyncHandler(async (req, res) => {
-  const contact = await Contact.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-  });
+  const contact = await Contact.findById(req.params.id);
   if (!contact) {
     res.status(404);
     throw new Error("Contact not found");
   }
 
-  res.status(200).json(contact);
+  if (contact.user_id.toString() !== req.user.id) {
+    res.status(403);
+    throw new Error("User can't delete and update the other user details");
+  }
+  const updateContact = await Contact.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    {
+      new: true,
+    }
+  );
+
+  res.status(200).json(updateContact);
 });
 
 //delete contact
 const deleteContact = asyncHandler(async (req, res) => {
-  const contact = await Contact.findByIdAndDelete(req.params.id);
+  const contact = await Contact.findById(req.params.id);
   if (!contact) {
     res.status(404);
     throw new Error("Contact not found");
   }
 
-  res.status(200).json(contact);
+  if (contact.user_id.toString() !== req.user.id) {
+    res.status(403);
+    throw new Error("User can't delete and update the other user details");
+  }
+
+  const deleteContact = await Contact.findByIdAndDelete(req.params.id);
+
+  res.status(200).json(deleteContact);
   // res.status(200).json({ msg: `Delete the contact ${req.params.id}` });
 });
 module.exports = {
