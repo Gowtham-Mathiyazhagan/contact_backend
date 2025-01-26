@@ -29,7 +29,7 @@ const createNewContact = asyncHandler(async (req, res) => {
     email,
     phone,
   });
-  res.status(201).json(contacts);
+  res.status(200).json(contacts);
 });
 
 //get a conatct with id
